@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill of Materials (BOM) Request Form - Alpatech</title>
+    <!-- Include html2pdf.js library for direct PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #dc2626;
+            --accent-hover: #b91c1c;
+            --dark-blue: #0f172a;
+            --dark-blue-hover: #1e293b;
+            --border: #cbd5e1;
+            --bg: #94a3b8;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2.5rem 1rem;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: var(--card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            border-top: 6px solid var(--accent);
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .header-flex {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .header-title h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title p {
+            margin: 0.2rem 0 0 0;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background: #ffffff;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-group label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #475569;
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.5px;
+        }
+
+        .field-group input {
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+
+        .field-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .table-responsive {
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: #ffffff;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.85rem 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        td {
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            vertical-align: middle;
+            background: #ffffff;
+        }
+
+        table input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.5rem;
+            background: #ffffff;
+            font-size: 0.9rem;
+            color: var(--primary);
+            border-radius: 4px;
+        }
+
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        table select {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.5rem;
+            background: #ffffff;
+            font-size: 0.9rem;
+            color: var(--primary);
+            border-radius: 4px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+        }
+
+        table select option {
+            background-color: #ffffff;
+            color: var(--primary);
+        }
+
+        table input:focus, table select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+        }
+
+        .item-number {
+            text-align: center;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Scaled down Venom Elastic Capsule Button Style for Add Line Item (Dark Blue) */
+        .venom-btn-add {
+            position: relative;
+            background-color: var(--dark-blue);
+            color: #ffffff;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            box-shadow: 0 6px 15px rgba(15, 23, 42, 0.3);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease, box-shadow 0.2s ease;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .venom-btn-add:hover {
+            background-color: var(--dark-blue-hover);
+            transform: scale(1.04);
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.4);
+        }
+
+        .venom-btn-add:active {
+            transform: scale(0.96);
+        }
+
+        .btn-danger {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border-color: #fecaca;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            border-radius: 4px;
+        }
+
+        .btn-danger:hover {
+            background-color: #fecaca;
+        }
+
+        .auth-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+            border-top: 2px solid var(--border);
+            padding-top: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .auth-box label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #475569;
+            letter-spacing: 0.5px;
+            margin-bottom: 0;
+        }
+
+        .auth-box input {
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #ffffff;
+            color: var(--primary);
+        }
+
+        .auth-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            justify-items: center;
+        }
+
+        .venom-btn-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Venom Elastic Capsule Button Style for Save as PDF (Dark Blue) */
+        .venom-btn-pdf {
+            position: relative;
+            background-color: var(--dark-blue);
+            color: #ffffff;
+            border: none;
+            padding: 0.85rem 2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            width: 100%;
+            max-width: 320px;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.3);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease, box-shadow 0.2s ease;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .venom-btn-pdf:hover {
+            background-color: var(--dark-blue-hover);
+            transform: scale(1.04);
+            box-shadow: 0 14px 25px rgba(15, 23, 42, 0.4);
+        }
+
+        .venom-btn-pdf:active {
+            transform: scale(0.96);
+        }
+
+        /* Venom Elastic Capsule Button Style for Print Request (Red) */
+        .btn-primary {
+            position: relative;
+            background-color: var(--accent);
+            color: #ffffff;
+            border: none;
+            padding: 0.85rem 2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            width: 100%;
+            max-width: 320px;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease, box-shadow 0.2s ease;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            transform: scale(1.04);
+            box-shadow: 0 14px 25px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+
+        .form-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            letter-spacing: 0.5px;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background-color: white !important;
+                color: black !important;
+                padding: 0;
+            }
+            .container {
+                background: white !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                border-top: none !important;
+                color: black !important;
+            }
+            .action-col, .venom-btn-add, .action-buttons, button[onclick="addRow()"], .form-footer {
+                display: none !important;
+            }
+            table input, table select, input, select {
+                border: 1px solid #cbd5e1 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                padding: 0.4rem !important;
+                color: black !important;
+            }
+            th {
+                background-color: #1e293b !important;
+                color: #fff !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+            td {
+                background: transparent !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+            table select {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            }
+            .meta-grid {
+                background: transparent !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+            .field-group input {
+                background: transparent !important;
+                color: black !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+            .auth-box input {
+                background: transparent !important;
+                color: transparent !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+            #projectName:placeholder-shown, #requestedBy:placeholder-shown, #requestedBySig:placeholder-shown, #releasedBy:placeholder-shown, #releasedBySig:placeholder-shown, #receivedBy:placeholder-shown, #receivedBySig:placeholder-shown {
+                color: transparent !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="pdfContent">
+    <div class="header-flex">
+        <div class="header-title">
+            <h2>Equipment Request Form</h2>
+            <p>Internal Equipment Requisition Form</p>
+        </div>
+    </div>
+    
+    <form id="bomForm" onsubmit="event.preventDefault(); window.print();">
+        <!-- Project Information Grid -->
+        <div class="meta-grid">
+            <div class="field-group">
+                <label for="projectName">Project/ Client Name:</label>
+                <input type="text" id="projectName" name="projectName" required placeholder="">
+            </div>
+            <div class="field-group">
+                <label for="requiredDate">Requested Date</label>
+                <input type="date" id="requiredDate" name="requiredDate" required>
+            </div>
+        </div>
+
+        <!-- BOM Items Table -->
+        <div class="table-responsive">
+            <table id="bomTable">
+                <thead>
+                    <tr>
+                        <th style="width: 7%;">Item</th>
+                        <th style="width: 38%;">Description</th>
+                        <th style="width: 12%;">Qty</th>
+                        <th style="width: 18%;">Unit</th>
+                        <th style="width: 20%;">Remarks</th>
+                        <th style="width: 5%;" class="action-col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="item-number">1</td>
+                        <td><input type="text" name="description[]" placeholder="" required></td>
+                        <td><input type="number" name="quantity[]" min="1" value="" required></td>
+                        <td>
+                            <div class="select-wrapper">
+                                <select name="unit[]">
+                                    <option value="" disabled selected>Select unit</option>
+                                    <option value="pcs">Pc/s</option>
+                                    <option value="meters">Meter/s</option>
+                                    <option value="pairs">Pair/s</option>
+                                    <option value="rolls">Roll/s</option>
+                                    <option value="sets">Sets</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td><input type="text" name="remarks[]"></td>
+                        <td class="action-col" style="text-align: center; border: 1px solid var(--border);"><button type="button" class="btn btn-danger" onclick="removeRow(this)">×</button></td>
+                    </tr>
+                    <tr>
+                        <td class="item-number">2</td>
+                        <td><input type="text" name="description[]" placeholder="" required></td>
+                        <td><input type="number" name="quantity[]" min="1" value="" required></td>
+                        <td>
+                            <div class="select-wrapper">
+                                <select name="unit[]">
+                                    <option value="" disabled selected>Select unit</option>
+                                    <option value="pcs">Pc/s</option>
+                                    <option value="meters">Meter/s</option>
+                                    <option value="pairs">Pair/s</option>
+                                    <option value="rolls">Roll/s</option>
+                                    <option value="sets">Sets</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td><input type="text" name="remarks[]"></td>
+                        <td class="action-col" style="text-align: center; border: 1px solid var(--border);"><button type="button" class="btn btn-danger" onclick="removeRow(this)">×</button></td>
+                    </tr>
+                    <tr>
+                        <td class="item-number">3</td>
+                        <td><input type="text" name="description[]" placeholder="" required></td>
+                        <td><input type="number" name="quantity[]" min="1" value="" required></td>
+                        <td>
+                            <div class="select-wrapper">
+                                <select name="unit[]">
+                                    <option value="" disabled selected>Select unit</option>
+                                    <option value="pcs">Pc/s</option>
+                                    <option value="meters">Meter/s</option>
+                                    <option value="pairs">Pair/s</option>
+                                    <option value="rolls">Roll/s</option>
+                                    <option value="sets">Sets</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td><input type="text" name="remarks[]"></td>
+                        <td class="action-col" style="text-align: center; border: 1px solid var(--border);"><button type="button" class="btn btn-danger" onclick="removeRow(this)">×</button></td>
+                    </tr>
+                    <tr>
+                        <td class="item-number">4</td>
+                        <td><input type="text" name="description[]" placeholder="" required></td>
+                        <td><input type="number" name="quantity[]" min="1" value="" required></td>
+                        <td>
+                            <div class="select-wrapper">
+                                <select name="unit[]">
+                                    <option value="" disabled selected>Select unit</option>
+                                    <option value="pcs">Pc/s</option>
+                                    <option value="meters">Meter/s</option>
+                                    <option value="pairs">Pair/s</option>
+                                    <option value="rolls">Roll/s</option>
+                                    <option value="sets">Sets</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td><input type="text" name="remarks[]"></td>
+                        <td class="action-col" style="text-align: center; border: 1px solid var(--border);"><button type="button" class="btn btn-danger" onclick="removeRow(this)">×</button></td>
+                    </tr>
+                    <tr>
+                        <td class="item-number">5</td>
+                        <td><input type="text" name="description[]" placeholder="" required></td>
+                        <td><input type="number" name="quantity[]" min="1" value="" required></td>
+                        <td>
+                            <div class="select-wrapper">
+                                <select name="unit[]">
+                                    <option value="" disabled selected>Select unit</option>
+                                    <option value="pcs">Pc/s</option>
+                                    <option value="meters">Meter/s</option>
+                                    <option value="pairs">Pair/s</option>
+                                    <option value="rolls">Roll/s</option>
+                                    <option value="sets">Sets</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td><input type="text" name="remarks[]"></td>
+                        <td class="action-col" style="text-align: center; border: 1px solid var(--border);"><button type="button" class="btn btn-danger" onclick="removeRow(this)">×</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="btn-row">
+            <button type="button" class="venom-btn-add" onclick="addRow()">+ Add Line Item</button>
+        </div>
+
+        <!-- Authorization / Sign-off -->
+        <div class="auth-section">
+            <div class="auth-box">
+                <label for="requestedBy">Requested By</label>
+                <input type="text" id="requestedBy" name="requestedBy" required placeholder="">
+                <input type="text" id="requestedBySig" name="requestedBySig" placeholder="">
+            </div>
+            <div class="auth-box">
+                <label for="releasedBy">Released By</label>
+                <input type="text" id="releasedBy" name="releasedBy" placeholder="">
+                <input type="text" id="releasedBySig" name="releasedBySig" placeholder="">
+            </div>
+            <div class="auth-box">
+                <label for="receivedBy">Received By</label>
+                <input type="text" id="receivedBy" name="receivedBy" placeholder="">
+                <input type="text" id="receivedBySig" name="receivedBySig" placeholder="">
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <div class="venom-btn-wrapper">
+                <button type="button" class="venom-btn-pdf" onclick="saveAsPDF()">Save as PDF</button>
+            </div>
+            <div class="venom-btn-wrapper">
+                <button type="submit" class="btn-primary">Print Request</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Footer -->
+    <div class="form-footer">
+        &copy; 2026 ALPHATECH TRADING. All rights reserved.
+                           (Jeth)
+    </div>
+</div>
+
+<script>
+    function addRow() {
+        const tableBody = document.getElementById('bomTable').getElementsByTagName('tbody')[0];
+        const newRow = tableBody.insertRow();
+        const rowCount = tableBody.rows.length;
+        
+        newRow.innerHTML = `
+            <td class="item-number">${rowCount}</td>
+            <td><input type="text" name="description[]" placeholder="" required></td>
+            <td><input type="number" name="quantity[]" min="1" value="" required></td>
+            <td>
+                <div class="select-wrapper">
+                    <select name="unit[]">
+                        <option value="" disabled selected>Select unit</option>
+                        <option value="pcs">Pc/s</option>
+                        <option value="meters">Meter/s</option>
+                        <option value="pairs">Pair/s</option>
+                        <option value="rolls">Roll/s</option>
+                        <option value="sets">Sets</option>
+                    </select>
+                </div>
+            </td>
+            <td><input type="text" name="remarks[]"></td>
+            <td class="action-col" style="text-align: center; border: 1px solid var(--border);"><button type="button" class="btn btn-danger" onclick="removeRow(this)">×</button></td>
+        `;
+    }
+
+    function removeRow(button) {
+        const row = button.closest('tr');
+        const tableBody = document.getElementById('bomTable').getElementsByTagName('tbody')[0];
+        
+        if (tableBody.rows.length > 1) {
+            row.remove();
+            updateRowNumbers();
+        } else {
+            alert("The BOM must contain at least one item.");
+        }
+    }
+
+    function updateRowNumbers() {
+        const tableBody = document.getElementById('bomTable').getElementsByTagName('tbody')[0];
+        for (let i = 0; i < tableBody.rows.length; i++) {
+            tableBody.rows[i].cells[0].innerText = i + 1;
+        }
+    }
+
+    function saveAsPDF() {
+        const element = document.getElementById('pdfContent');
+        
+        const options = {
+            margin:       0.5,
+            filename:     'BOM_Request_Form.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        const actionCols = document.querySelectorAll('.action-col');
+        const addBtn = document.querySelector('.btn-row');
+        const actionBtns = document.querySelector('.action-buttons');
+        const footer = document.querySelector('.form-footer');
+
+        actionCols.forEach(el => el.style.display = 'none');
+        if(addBtn) addBtn.style.display = 'none';
+        if(actionBtns) actionBtns.style.display = 'none';
+        if(footer) footer.style.display = 'none';
+
+        html2pdf().from(element).set(options).save().then(() => {
+            actionCols.forEach(el => el.style.display = '');
+            if(addBtn) addBtn.style.display = '';
+            if(actionBtns) actionBtns.style.display = '';
+            if(footer) footer.style.display = '';
+        });
+    }
+</script>
+
+</body>
+</html>
